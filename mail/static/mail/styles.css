@@ -1,0 +1,12 @@
+textarea {
+    min-height: 400px;
+}
+
+.HoverClass1:hover {
+    color: white!important; 
+    background-color: teal;
+}
+    
+a {
+    cursor: pointer;
+}
