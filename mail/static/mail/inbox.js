@@ -27,7 +27,6 @@ function compose_email() {
   document.querySelector('#container').innerHTML = '';
   // Send email
   document.querySelector('#compose-form').addEventListener('submit', send_mail);
-  
 }
 // ------------------------------------------------------------------------------
 
@@ -173,8 +172,14 @@ const view_email = async(Id) => {
 // Mark email as read 
 
 const mark_as_read = async (email) => {
+  const csrftoken = getCookie('csrftoken');
+
   await fetch(email, {
     method: 'PUT',
+    headers: {
+      "Content-Type": "application/json",
+      'X-CSRFToken': csrftoken,
+    },
     body: JSON.stringify({
       "read": true,
     }) 
@@ -187,8 +192,14 @@ const mark_as_read = async (email) => {
 // Mark email as unread 
 
 const mark_as_unread = async (email) => {
+  const csrftoken = getCookie('csrftoken');
+
   await fetch(email, {
     method: 'PUT',
+    headers: {
+      "Content-Type": "application/json",
+      'X-CSRFToken': csrftoken,
+    },
     body: JSON.stringify({
       "read": false,
     }) 
@@ -202,16 +213,25 @@ const mark_as_unread = async (email) => {
 
 const archive_emails = async (email, emailId) => {
   const emailURL = `/emails/${emailId}`; 
+  const csrftoken = getCookie('csrftoken');
   
   email.archived === false ? 
     await fetch(emailURL, {
     method: 'PUT',
+    headers: {
+            "Content-Type": "application/json",
+            'X-CSRFToken': csrftoken,
+        },
     body: JSON.stringify({
       "archived": true,
     })
   }) :
     await fetch(emailURL, {
     method: 'PUT',
+    headers: {
+            "Content-Type": "application/json",
+            'X-CSRFToken': csrftoken,
+        },
     body: JSON.stringify({
       "archived": false,
     })
@@ -250,6 +270,7 @@ const send_mail = async (e) => {
   const recipients = document.querySelector('#compose-recipients').value;
   const subject = document.querySelector('#compose-subject').value;
   const body = document.querySelector('#compose-body').value;
+  const csrftoken = getCookie('csrftoken');
 
   // Add email components into one object
   const emailData = {
@@ -262,7 +283,8 @@ const send_mail = async (e) => {
   await fetch('/emails', {
         method: 'POST',
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify(emailData) 
       })
@@ -281,3 +303,20 @@ const send_mail = async (e) => {
 };
 
 // ------------------------------------------------------------------------------
+
+// Cookie handler from Django docs
+const getCookie = name => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+};
